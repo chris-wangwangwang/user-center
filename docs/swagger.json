@@ -1,0 +1,19 @@
+{
+    "schemes": ["http"],
+    "swagger": "2.0",
+    "info": {
+        "title": "UserCenter OIDC Service",
+        "description": "用户中心与 OIDC 服务",
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {},
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
