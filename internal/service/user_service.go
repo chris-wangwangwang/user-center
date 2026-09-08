@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chris/usercenter/internal/database"
 	"github.com/chris/usercenter/internal/exception"
 	"github.com/chris/usercenter/internal/model"
 	"github.com/chris/usercenter/internal/repository"
@@ -43,6 +44,7 @@ var (
 func GetUserService() UserService {
 	userSvcOnce.Do(func() {
 		userSvcInstance = &userServiceImpl{
+			db:        database.GetDB(),
 			jwtMgr:    jwt.GetManager(),
 			userRepo:  repository.GetUserRepository(),
 			tokenRepo: repository.GetRefreshTokenRepository(),

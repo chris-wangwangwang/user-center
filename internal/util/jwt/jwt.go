@@ -46,8 +46,8 @@ func GetManager() Manager {
 		mgrInstance = &managerImpl{
 			secret:     []byte(cfg.JWTSecret),
 			issuer:     cfg.JWTIssuer,
-			accessTTL:  cfg.AccessTokenTTL,
-			refreshTTL: cfg.RefreshTokenTTL,
+			accessTTL:  cfg.AccessTokenTTL(),
+			refreshTTL: cfg.RefreshTokenTTL(),
 		}
 	})
 	return mgrInstance

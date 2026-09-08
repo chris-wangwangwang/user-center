@@ -1,0 +1,13 @@
+http_port = 8080
+
+db_host = "172.20.90.73"
+db_port = 5432
+db_user = "postgres"
+db_password = "123456"
+db_name = "usercenter"
+db_sslmode = "disable"
+
+jwt_secret = "change-me-in-production-please"
+jwt_issuer = "usercenter"
+access_token_ttl_minutes = 60
+refresh_token_ttl_hours = 168

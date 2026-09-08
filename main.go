@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"log"
 
+	_ "github.com/chris/usercenter/docs"
 	"github.com/chris/usercenter/internal/config"
 	"github.com/chris/usercenter/internal/database"
 	"github.com/chris/usercenter/internal/router"

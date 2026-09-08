@@ -2,54 +2,35 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"strconv"
 	"time"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
-	HTTPPort int
+	HTTPPort int `toml:"http_port"`
 
-	DBHost     string
-	DBPort     int
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBSSLMode  string
+	DBHost     string `toml:"db_host"`
+	DBPort     int    `toml:"db_port"`
+	DBUser     string `toml:"db_user"`
+	DBPassword string `toml:"db_password"`
+	DBName     string `toml:"db_name"`
+	DBSSLMode  string `toml:"db_sslmode"`
 
-	JWTSecret    string
-	JWTIssuer    string
-	AccessTokenTTL  time.Duration
-	RefreshTokenTTL time.Duration
+	JWTSecret             string `toml:"jwt_secret"`
+	JWTIssuer             string `toml:"jwt_issuer"`
+	AccessTokenTTLMinutes int    `toml:"access_token_ttl_minutes"`
+	RefreshTokenTTLHours  int    `toml:"refresh_token_ttl_hours"`
 }
 
-var instance *Config
-var once bool
-
-func Get() *Config {
-	if !once {
-		instance = load()
-		once = true
-	}
-	return instance
+func (c *Config) AccessTokenTTL() time.Duration {
+	return time.Duration(c.AccessTokenTTLMinutes) * time.Minute
 }
 
-func load() *Config {
-	return &Config{
-		HTTPPort: getEnvInt("HTTP_PORT", 8080),
-
-		DBHost:     getEnv("DB_HOST", "172.20.90.73"),
-		DBPort:     getEnvInt("DB_PORT", 5432),
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "123456"),
-		DBName:     getEnv("DB_NAME", "usercenter"),
-		DBSSLMode:  getEnv("DB_SSLMODE", "disable"),
-
-		JWTSecret:      getEnv("JWT_SECRET", "change-me-in-production-please"),
-		JWTIssuer:      getEnv("JWT_ISSUER", "usercenter"),
-		AccessTokenTTL: time.Duration(getEnvInt("ACCESS_TOKEN_TTL_MIN", 60)) * time.Minute,
-		RefreshTokenTTL: time.Duration(getEnvInt("REFRESH_TOKEN_TTL_HOUR", 24*7)) * time.Hour,
-	}
+func (c *Config) RefreshTokenTTL() time.Duration {
+	return time.Duration(c.RefreshTokenTTLHours) * time.Hour
 }
 
 func (c *Config) DSN() string {
@@ -59,18 +40,52 @@ func (c *Config) DSN() string {
 	)
 }
 
-func getEnv(key, def string) string {
-	if v, ok := os.LookupEnv(key); ok && v != "" {
-		return v
+var (
+	instance *Config
+	loaded   bool
+)
+
+func Get() *Config {
+	if !loaded {
+		instance = load()
+		loaded = true
 	}
-	return def
+	return instance
 }
 
-func getEnvInt(key string, def int) int {
-	if v, ok := os.LookupEnv(key); ok && v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			return n
-		}
+const configPath = "config.toml"
+
+func defaults() *Config {
+	return &Config{
+		HTTPPort: 8080,
+
+		DBHost:     "172.20.90.73",
+		DBPort:     5432,
+		DBUser:     "postgres",
+		DBPassword: "123456",
+		DBName:     "usercenter",
+		DBSSLMode:  "disable",
+
+		JWTSecret:             "change-me-in-production-please",
+		JWTIssuer:             "usercenter",
+		AccessTokenTTLMinutes: 60,
+		RefreshTokenTTLHours:  24 * 7,
 	}
-	return def
+}
+
+func load() *Config {
+	cfg := defaults()
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Printf("config: read %s failed, fall back to defaults: %v", configPath, err)
+		} else {
+			log.Printf("config: %s not found, using built-in defaults", configPath)
+		}
+		return cfg
+	}
+	if err := toml.Unmarshal(data, cfg); err != nil {
+		log.Fatalf("config: parse %s failed: %v", configPath, err)
+	}
+	return cfg
 }

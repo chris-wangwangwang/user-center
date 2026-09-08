@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chris/usercenter/internal/database"
 	"github.com/chris/usercenter/internal/exception"
 	"github.com/chris/usercenter/internal/model"
 	"github.com/chris/usercenter/internal/repository"
@@ -40,6 +41,7 @@ var (
 func GetOIDCService() OIDCService {
 	oidcSvcOnce.Do(func() {
 		oidcSvcInstance = &oidcServiceImpl{
+			db:         database.GetDB(),
 			jwtMgr:     jwt.GetManager(),
 			clientRepo: repository.GetOAuthClientRepository(),
 			userRepo:   repository.GetUserRepository(),
