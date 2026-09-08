@@ -3,8 +3,8 @@ package database
 import (
 	"log"
 
-	"github.com/chris/usercenter/internal/config"
-	"github.com/chris/usercenter/internal/model"
+	"user-center/internal/config"
+	"user-center/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

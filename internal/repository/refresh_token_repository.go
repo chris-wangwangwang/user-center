@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/chris/usercenter/internal/exception"
-	"github.com/chris/usercenter/internal/model"
+	"user-center/internal/exception"
+	"user-center/internal/model"
 	"gorm.io/gorm"
 )
 

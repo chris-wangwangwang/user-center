@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/chris/usercenter/internal/exception"
-	"github.com/chris/usercenter/internal/middleware"
-	"github.com/chris/usercenter/internal/service"
+	"user-center/internal/exception"
+	"user-center/internal/middleware"
+	"user-center/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

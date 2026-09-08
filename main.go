@@ -14,10 +14,10 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/chris/usercenter/docs"
-	"github.com/chris/usercenter/internal/config"
-	"github.com/chris/usercenter/internal/database"
-	"github.com/chris/usercenter/internal/router"
+	_ "user-center/docs"
+	"user-center/internal/config"
+	"user-center/internal/database"
+	"user-center/internal/router"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	r := router.New(issuer)
 
 	addr := fmt.Sprintf(":%d", cfg.HTTPPort)
-	log.Printf("usercenter listening on %s, issuer=%s", addr, issuer)
+	log.Printf("user-center listening on %s, issuer=%s", addr, issuer)
 	if err := r.Run(addr); err != nil {
 		log.Fatalf("server exited: %v", err)
 	}

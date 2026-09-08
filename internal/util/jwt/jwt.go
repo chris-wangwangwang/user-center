@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/chris/usercenter/internal/config"
-	"github.com/chris/usercenter/internal/exception"
+	"user-center/internal/config"
+	"user-center/internal/exception"
 	"github.com/golang-jwt/jwt/v5"
 )
 

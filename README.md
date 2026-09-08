@@ -1,4 +1,4 @@
-# usercenter (OIDC 用户中心服务)
+# user-center (OIDC 用户中心服务)
 
 基于 Gin + GORM 的 OIDC 用户中心，为分布式服务提供统一的注册、登录、鉴权接口。
 
@@ -12,7 +12,7 @@
 ## 目录结构
 
 ```text
-usercenter/
+user-center/
 ├── main.go                            入口
 ├── config.toml                        配置（可被 .gitignore 忽略）
 ├── docs/                              swag 生成

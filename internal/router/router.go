@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/chris/usercenter/internal/handler"
-	"github.com/chris/usercenter/internal/middleware"
+	"user-center/internal/handler"
+	"user-center/internal/middleware"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

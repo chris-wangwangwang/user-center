@@ -1,4 +1,4 @@
-module github.com/chris/usercenter
+module user-center
 
 go 1.25
 

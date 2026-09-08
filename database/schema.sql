@@ -1,5 +1,5 @@
 -- =============================================================================
--- usercenter schema
+-- user-center schema
 --   PostgreSQL 14+
 --   与 internal/model/model.go 一一对应 (uc_* 表前缀)
 --   与 GORM AutoMigrate 结果一致; 若两者差异以本文件为准

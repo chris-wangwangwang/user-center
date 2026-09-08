@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/chris/usercenter/internal/database"
-	"github.com/chris/usercenter/internal/exception"
-	"github.com/chris/usercenter/internal/model"
-	"github.com/chris/usercenter/internal/repository"
-	"github.com/chris/usercenter/internal/util/jwt"
-	"github.com/chris/usercenter/internal/util/password"
+	"user-center/internal/database"
+	"user-center/internal/exception"
+	"user-center/internal/model"
+	"user-center/internal/repository"
+	"user-center/internal/util/jwt"
+	"user-center/internal/util/password"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

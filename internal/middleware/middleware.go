@@ -3,8 +3,8 @@ package middleware
 import (
 	"strings"
 
-	"github.com/chris/usercenter/internal/exception"
-	"github.com/chris/usercenter/internal/util/jwt"
+	"user-center/internal/exception"
+	"user-center/internal/util/jwt"
 	"github.com/gin-gonic/gin"
 )
 
