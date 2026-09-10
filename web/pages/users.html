@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户管理 - User Center</title>
+<link rel="stylesheet" href="/web/css/style.css">
+</head>
+<body>
+<div id="topbar"></div>
+
+<div class="container">
+    <h1 class="page-title">用户管理</h1>
+    <p class="page-subtitle">查看和管理所有注册用户</p>
+
+    <div class="card">
+        <h3>
+            <span>用户列表</span>
+            <span class="actions">
+                <span class="muted" id="user-count"></span>
+            </span>
+        </h3>
+        <div id="user-table-wrap"></div>
+        <div class="flex between mt-2">
+            <span class="muted" id="page-info"></span>
+            <span class="flex" style="gap:6px;">
+                <button class="btn sm secondary" id="prev-page">上一页</button>
+                <button class="btn sm secondary" id="next-page">下一页</button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<script src="/web/js/api.js"></script>
+<script src="/web/js/nav.js"></script>
+<script>
+    let currentPage = 1;
+    const pageSize = 20;
+
+    (async () => {
+        if (!Nav.mount('users')) return;
+        await Nav.ensureUserLoaded();
+        loadUsers(currentPage);
+    })();
+
+    async function loadUsers(page) {
+        const wrap = document.getElementById('user-table-wrap');
+        try {
+            const data = await Api.get(`/api/v1/users?page=${page}&size=${pageSize}`);
+            const list = data.list || [];
+            const total = data.total || 0;
+
+            if (list.length === 0) {
+                wrap.innerHTML = '<div class="empty">暂无用户数据</div>';
+                document.getElementById('page-info').textContent = '';
+                document.getElementById('user-count').textContent = '';
+                return;
+            }
+
+            document.getElementById('user-count').textContent = `共 ${total} 位用户`;
+            document.getElementById('page-info').textContent =
+                `第 ${page} 页 / 共 ${Math.ceil(total / pageSize)} 页`;
+
+            const rows = list.map(u => {
+                const status = u.disabled
+                    ? '<span class="pill danger">已禁用</span>'
+                    : '<span class="pill success">正常</span>';
+                return `<tr>
+                    <td style="max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(u.id)}">${escapeHtml(u.id.substring(0, 8))}...</td>
+                    <td>${escapeHtml(u.username)}</td>
+                    <td>${escapeHtml(u.nickname || '-')}</td>
+                    <td>${escapeHtml(u.email || '-')}</td>
+                    <td>${escapeHtml(u.phone || '-')}</td>
+                    <td>${status}</td>
+                    <td>${fmtTime(u.created_at)}</td>
+                    <td>
+                        <button class="btn sm ${u.disabled ? 'secondary' : 'danger'}"
+                            onclick="toggleUser('${escapeHtml(u.id)}', ${!u.disabled})">
+                            ${u.disabled ? '启用' : '禁用'}
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            wrap.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>昵称</th>
+                            <th>邮箱</th>
+                            <th>手机号</th>
+                            <th>状态</th>
+                            <th>注册时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+
+            currentPage = page;
+            document.getElementById('prev-page').disabled = page <= 1;
+            document.getElementById('next-page').disabled = page * pageSize >= total;
+        } catch (e) {
+            wrap.innerHTML = `<div class="empty">加载失败: ${escapeHtml(e.message)}</div>`;
+        }
+    }
+
+    async function toggleUser(id, disabled) {
+        const action = disabled ? '禁用' : '启用';
+        if (!confirm(`确定要${action}该用户吗？`)) return;
+        try {
+            await Api.post(`/api/v1/users/${id}/disable`, { disabled });
+            Toast.success(`用户已${action}`);
+            loadUsers(currentPage);
+        } catch (e) {
+            Toast.error(e.message || '操作失败');
+        }
+    }
+
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) loadUsers(currentPage - 1);
+    });
+    document.getElementById('next-page').addEventListener('click', () => {
+        loadUsers(currentPage + 1);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 - User Center</title>
+<link rel="stylesheet" href="/web/css/style.css">
+</head>
+<body class="login-page">
+<div class="login-card">
+    <h1>User Center</h1>
+    <p class="subtitle">用户中心统一认证</p>
+
+    <form id="login-form">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input id="username" name="username" type="text" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn" type="submit" id="submit-btn">登录</button>
+        <p id="err" class="hint" style="color: var(--danger); display:none;"></p>
+    </form>
+
+    <p class="hint">没有账号？<a href="#" id="show-register">注册新账号</a></p>
+
+    <div id="register-section" style="display:none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <h3 style="margin: 0 0 14px 0; font-size: 16px;">注册新账号</h3>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="reg-username">用户名</label>
+                <input id="reg-username" name="username" type="text" required minlength="3" maxlength="64">
+            </div>
+            <div class="form-group">
+                <label for="reg-password">密码</label>
+                <input id="reg-password" name="password" type="password" required minlength="6" maxlength="64">
+            </div>
+            <div class="form-group">
+                <label for="reg-nickname">昵称（可选）</label>
+                <input id="reg-nickname" name="nickname" type="text">
+            </div>
+            <div class="form-group">
+                <label for="reg-email">邮箱（可选）</label>
+                <input id="reg-email" name="email" type="email">
+            </div>
+            <button class="btn secondary" type="submit" id="reg-btn">注册</button>
+            <p id="reg-err" class="hint" style="color: var(--danger); display:none;"></p>
+            <p id="reg-ok" class="hint" style="color: var(--success); display:none;"></p>
+        </form>
+    </div>
+</div>
+
+<script src="/web/js/api.js"></script>
+<script>
+    document.getElementById('show-register').addEventListener('click', (e) => {
+        e.preventDefault();
+        const sec = document.getElementById('register-section');
+        sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        const err = document.getElementById('err');
+        err.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = '登录中...';
+        try {
+            const data = await Api.post('/api/v1/auth/login', {
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value,
+            }, { noAuth: true });
+            Auth.setSession(data);
+            try {
+                const me = await Api.get('/api/v1/users/me');
+                Auth.setSession({ user: me });
+            } catch (_) {}
+            window.location.href = '/web/pages/home.html';
+        } catch (e) {
+            err.textContent = e.message || '登录失败';
+            err.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '登录';
+        }
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('reg-btn');
+        const err = document.getElementById('reg-err');
+        const ok = document.getElementById('reg-ok');
+        err.style.display = 'none';
+        ok.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = '注册中...';
+        try {
+            const body = {
+                username: document.getElementById('reg-username').value.trim(),
+                password: document.getElementById('reg-password').value,
+            };
+            const nick = document.getElementById('reg-nickname').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            if (nick) body.nickname = nick;
+            if (email) body.email = email;
+
+            await Api.post('/api/v1/auth/register', body, { noAuth: true });
+            ok.textContent = '注册成功！请使用新账号登录。';
+            ok.style.display = 'block';
+            document.getElementById('register-form').reset();
+        } catch (e) {
+            err.textContent = e.message || '注册失败';
+            err.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '注册';
+        }
+    });
+</script>
+</body>
+</html>

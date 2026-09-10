@@ -1,6 +1,11 @@
 package router
 
 import (
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"user-center/internal/handler"
 	"user-center/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -20,6 +25,25 @@ func New(issuer string) *gin.Engine {
 	})
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/web/index.html")
+	})
+
+	webDir := resolveWebDir()
+	r.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		if strings.HasPrefix(path, "/web/") {
+			fp := filepath.Join(webDir, strings.TrimPrefix(path, "/web/"))
+			if info, err := os.Stat(fp); err == nil && !info.IsDir() {
+				c.File(fp)
+				return
+			}
+			c.File(filepath.Join(webDir, "index.html"))
+			return
+		}
+		c.JSON(404, gin.H{"code": 404, "message": "not found"})
+	})
 
 	r.GET("/.well-known/openid-configuration", adapter(oidcH.Discovery))
 
@@ -61,3 +85,15 @@ func New(issuer string) *gin.Engine {
 type ginHandler = gin.HandlerFunc
 
 func adapter(fn ginHandler) gin.HandlerFunc { return fn }
+
+func resolveWebDir() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		dir = "."
+	}
+	webDir := filepath.Join(dir, "web")
+	if info, err := os.Stat(webDir); err == nil && info.IsDir() {
+		return webDir
+	}
+	return filepath.Join(dir, "web")
+}
