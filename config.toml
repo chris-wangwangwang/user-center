@@ -1,6 +1,6 @@
 http_port = 8080
 
-db_host = "172.20.90.73"
+db_host = "172.20.38.247"
 db_port = 5432
 db_user = "postgres"
 db_password = "123456"

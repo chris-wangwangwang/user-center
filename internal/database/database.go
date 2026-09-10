@@ -5,6 +5,7 @@ import (
 
 	"user-center/internal/config"
 	"user-center/internal/model"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,6 +20,7 @@ func Init() *gorm.DB {
 		return db
 	}
 	cfg := config.Get()
+	// 1
 	conn, err := gorm.Open(postgres.Open(cfg.DSN()), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Warn),
 	})
